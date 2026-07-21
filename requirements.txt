@@ -1,0 +1,8 @@
+pydantic
+pydantic_settings
+aiogram
+fastapi
+uvicorn
+aiohttp
+ruff
+pre-commit

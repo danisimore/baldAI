@@ -1,0 +1,33 @@
+import logging
+from aiogram.types import Update
+from fastapi import FastAPI, Request, Response
+from tg_bot import bot, dp
+
+app = FastAPI()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+
+_logger = logging.getLogger("fastapi.logger")
+
+
+@app.post("/webhook")
+async def telegram_webhook(requiest: Request) -> Response:
+    """Telegram webhook.
+
+    Args:
+        requiest (Request): HTTP request from telegram with message data.
+
+    Returns:
+        Response: HTTP response.
+    """
+    _logger.info("Полученно сообщение!")
+    data = await requiest.json()
+    _logger.info(f"Message data = {data}")
+    update = Update.model_validate(data)
+
+    await dp.feed_webhook_update(bot, update)
+
+    return Response(status_code=200)
