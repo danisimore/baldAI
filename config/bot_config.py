@@ -5,5 +5,4 @@ class BotConfig(BaseConfig):
     """Telegram Bot settings."""
 
     token: str
-    webhook_url: str
     webhook_path: str
