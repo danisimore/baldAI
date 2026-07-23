@@ -24,9 +24,7 @@ async def telegram_webhook(requiest: Request) -> Response:
     Returns:
         Response: HTTP response.
     """
-    _logger.info("Полученно сообщение!")
     data = await requiest.json()
-    _logger.info(f"Message data = {data}")
     update = Update.model_validate(data)
 
     await dp.feed_webhook_update(bot, update)
