@@ -223,5 +223,4 @@ credentials-debug.json
 database.db
 debug/
 .vscode/
-repositories/
 tests/

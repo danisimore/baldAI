@@ -5,6 +5,8 @@ from aiogram.types import Message
 
 from config import bot_config
 from agent.agent import Agent
+from repositories.user import get_or_create_user
+from repositories.messages import get_history, save_messages
 
 
 logging.basicConfig(
@@ -31,10 +33,20 @@ async def chat(message: Message):
     Args:
         message (Message): Incoming Telegram message.
     """
-    pass
-    # answer = agent.chat(message.text)
+    user = get_or_create_user(user_data=message.from_user)
 
-    # await message.answer(answer)
+    history = get_history(user["id"])
+    result = agent.chat(
+        history=history,
+        user_message=message.text,
+    )
+
+    save_messages(
+        client_id=user["id"],
+        messages=result.messages,
+    )
+
+    await message.answer(result.answer)
 
 
 async def close_bot():

@@ -1,6 +1,5 @@
 import logging
-import psycopg2
-from psycopg2.extras import RealDictCursor
+from db import get_cursor
 
 _logger = logging.getLogger("bot.logger")
 
@@ -48,62 +47,49 @@ def find_products(query: str, limit: int = 5) -> list[dict]:
         List of product dictionaries sorted by relevance.
     """
 
-    conn = psycopg2.connect(
-        dbname="test",
-        user="postgres",
-        password="postgres",
-        host="localhost",
-        port="5432",
-        cursor_factory=RealDictCursor,
-    )
+    with get_cursor() as cur:
+        sql = """
+            SELECT
+                id,
+                name,
+                price,
+                stock,
+                type,
+                specs,
+                needs,
+                not_for,
+                additional_info,
 
-    try:
-        with conn.cursor() as cur:
-            sql = """
-                SELECT
-                    id,
-                    name,
-                    price,
-                    stock,
-                    type,
-                    specs,
-                    needs,
-                    not_for,
-                    additional_info,
+                word_similarity(
+                    lower(%(query)s),
+                    lower(name)
+                ) AS score
 
-                    word_similarity(
-                        lower(%(query)s),
-                        lower(name)
-                    ) AS score
+            FROM products
 
-                FROM products
+            WHERE
+                word_similarity(
+                    lower(%(query)s),
+                    lower(name)
+                ) > 0
 
-                WHERE
-                    word_similarity(
-                        lower(%(query)s),
-                        lower(name)
-                    ) > 0
+            ORDER BY score DESC
 
-                ORDER BY score DESC
+            LIMIT %(limit)s;
+        """
 
-                LIMIT %(limit)s;
-            """
+        cur.execute(
+            sql,
+            {
+                "query": query,
+                "limit": limit,
+            },
+        )
+        rows = cur.fetchall()
 
-            cur.execute(
-                sql,
-                {
-                    "query": query,
-                    "limit": limit,
-                },
-            )
-            rows = cur.fetchall()
+        rows = [row for row in rows if row["score"] > 0.8]
 
-            rows = [row for row in rows if row["score"] > 0.8]
-
-            return rows
-
-    finally:
-        conn.close()
+        return rows
 
 
 if __name__ == "__main__":

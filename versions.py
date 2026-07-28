@@ -1,10 +1,17 @@
-VERSION = "0.0.2"
+VERSION = "0.1.0"
 """Application version."""
 
-RELEASE_DATE = "2026-07-22"
+RELEASE_DATE = "2026-07-28"
 """Release date of the version."""
 
 CHANGELOG = {
+    "0.1.0": {
+        "date": "2026-07-28",
+        "changes": [
+            "Added AI Agent.",
+            "Added DeepSeek connector.",
+        ],
+    },
     "0.0.2": {
         "date": "2026-07-22",
         "changes": [

@@ -1,33 +1,78 @@
-from ollama import Client
+import logging
+from openai import OpenAI
+
+from config import llm_config
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+
+_logger = logging.getLogger("llm.logger")
 
 
-class OllamaClient:
-    """Client for interacting with a locally hosted Ollama model.
+class _DeepSeekResponse:
+    """Minimal wrapper to mimic Ollama's ChatResponse structure."""
 
-    Wraps the official Ollama Python client and provides a simplified
-    interface for sending chat completion requests with optional tool
-    definitions.
-    """
+    def __init__(self, message):
+        self.message = message
 
-    def __init__(self, host: str = "http://localhost:11434", model: str = "qwen3:8b"):
-        self.client = Client(host=host)
+
+class DeepSeekClient:
+    """Client for interacting with DeepSeek API via OpenAI-compatible interface."""
+
+    def __init__(
+        self,
+        base_url: str = "https://api.deepseek.com",
+        model: str = "deepseek-chat",
+    ):
+        self.client = OpenAI(
+            api_key=llm_config.api_key,
+            base_url=base_url,
+        )
         self.model = model
 
     def chat(
         self,
-        messages: list[dict[str, any]],
-        tools: list[dict[str, any]] | None = None,
-    ):
-        """Sends a chat completion request to the Ollama server.
+        messages: list[dict],
+        tools: list[dict] | None = None,
+    ) -> _DeepSeekResponse:
+        """Send a chat completion request to DeepSeek API.
 
         Args:
-            messages (list[dict]): Conversation history formatted according
-                to the Ollama chat API.
-            tools (list[dict] | None): Optional tool definitions available
-                to the language model.
+            messages (list[dict]): message history.
+            tools (list[dict]): available tools that LLM can use.
 
         Returns:
-            ChatResponse: Response returned by the Ollama client containing
-                the assistant message and any requested tool calls.
+            _DeepSeekResponse: DeepSeek answer.
         """
-        return self.client.chat(model=self.model, messages=messages, tools=tools)
+
+        cleaned_messages = []
+
+        for message in messages:
+            msg = dict(message)
+
+            if msg.get("role") == "assistant" and msg.get("tool_calls") is None:
+                msg.pop("tool_calls", None)
+
+            cleaned_messages.append(msg)
+
+        kwargs = {
+            "model": self.model,
+            "messages": cleaned_messages,
+        }
+
+        if tools:
+            kwargs["tools"] = tools
+
+        _logger.debug(
+            "Sending request to DeepSeek: model=%s, messages=%d, tools=%s",
+            self.model,
+            len(cleaned_messages),
+            bool(tools),
+        )
+
+        response = self.client.chat.completions.create(**kwargs)
+        message = response.choices[0].message
+
+        return _DeepSeekResponse(message)
