@@ -1,8 +1,9 @@
+from typing import Any
 from db import get_cursor
 from aiogram.types import User
 
 
-def get_user(telegram_id: int) -> dict[str, any] | None:
+def get_user(telegram_id: int) -> dict[str, Any] | None:
     """Retrieves a client by Telegram ID.
 
     Args:
@@ -23,7 +24,7 @@ def get_user(telegram_id: int) -> dict[str, any] | None:
         return cur.fetchone()
 
 
-def create_user(user_data: User) -> dict[str, any]:
+def create_user(user_data: User) -> dict[str, Any]:
     """Creates a new client.
 
     Stores the Telegram user in the database and returns the created
@@ -53,7 +54,7 @@ def create_user(user_data: User) -> dict[str, any]:
         return cur.fetchone()
 
 
-def get_or_create_user(user_data: User) -> dict[str, any]:
+def get_or_create_user(user_data: User) -> dict[str, Any]:
     """Retrieves an existing client or creates a new one.
 
     Searches for a client by Telegram ID. If the client does not exist,

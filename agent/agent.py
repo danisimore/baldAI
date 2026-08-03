@@ -1,8 +1,12 @@
 import logging
 import json
 from agent.llm import DeepSeekClient
-from agent.tools_registry import TOOLS, FUNCTIONS
+from agent.tools_registry import TOOLS
 from dto.agent_data import AgentResult
+from dto.tool_context import ToolContext
+from agent.tool_executor import ToolExecutor
+from repositories.user import get_user
+
 
 _logger = logging.getLogger("bot.logger")
 
@@ -25,6 +29,7 @@ class Agent:
         self,
         history: list[dict],
         user_message: str,
+        user_id: str,
     ) -> AgentResult:
         """Generates a response to a user's message.
 
@@ -36,6 +41,7 @@ class Agent:
         Args:
             history (list[dict]): Chat history.
             user_message (str): User's input message.
+            user_id (str): telegram user id.
 
         Returns:
             AgentResult: Final assistant response together with all newly
@@ -45,6 +51,11 @@ class Agent:
             RuntimeError: If the language model exceeds the maximum allowed
                 number of tool calls.
         """
+
+        user = get_user(telegram_id=user_id)
+        executor = ToolExecutor(
+            context=ToolContext(telegram_id=user_id, user_id=user["id"])
+        )
         messages = list(history)
         new_messages = []
 
@@ -103,8 +114,7 @@ class Agent:
                     arguments,
                 )
 
-                func = FUNCTIONS[tool_name]
-                result = func(**arguments)
+                result = executor.execute(tool_name=tool_name, arguments=arguments)
 
                 _logger.info(
                     "Tool %s returned %d objects",
@@ -115,7 +125,7 @@ class Agent:
                 tool_message = {
                     "role": "tool",
                     "tool_call_id": tool_call.id,
-                    "content": json.dumps(result, ensure_ascii=False),
+                    "content": json.dumps(result, ensure_ascii=False, default=str),
                 }
 
                 messages.append(tool_message)

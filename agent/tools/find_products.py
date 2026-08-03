@@ -1,7 +1,7 @@
 import logging
 from db import get_cursor
 
-_logger = logging.getLogger("bot.logger")
+_logger = logging.getLogger("tools.logger")
 
 
 TOOL = {
@@ -51,14 +51,19 @@ def find_products(query: str, limit: int = 5) -> list[dict]:
         sql = """
             SELECT
                 id,
+                article,
                 name,
-                price,
-                stock,
+                category_id,
+                brand_id,
                 type,
-                specs,
-                needs,
-                not_for,
-                additional_info,
+                size,
+                sections,
+                diameter,
+                pack,
+                price,
+                stock_kursk,
+                stock_lipetsk,
+                stock_bryansk,
 
                 word_similarity(
                     lower(%(query)s),

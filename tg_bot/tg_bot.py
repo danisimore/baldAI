@@ -37,8 +37,7 @@ async def chat(message: Message):
 
     history = get_history(user["id"])
     result = agent.chat(
-        history=history,
-        user_message=message.text,
+        history=history, user_message=message.text, user_id=message.from_user.id
     )
 
     save_messages(

@@ -1,10 +1,21 @@
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 """Application version."""
 
-RELEASE_DATE = "2026-07-28"
+RELEASE_DATE = "2026-08-03"
 """Release date of the version."""
 
 CHANGELOG = {
+    "0.1.1": {
+        "date": "2026-08-03",
+        "changes": [
+            "Added tools: get_cart_tool and add_cart_tool",
+            "Added Tool Executor.",
+            "Prompt has been updated.",
+            "The code has been adapted to the new table structure.",
+            "Added repositories for interacting with the carts and cart_items tables",
+            "Implemented a CartExecutor for working with shopping carts",
+        ],
+    },
     "0.1.0": {
         "date": "2026-07-28",
         "changes": [
