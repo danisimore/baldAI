@@ -1,7 +1,7 @@
 import logging
 from typing import Any
 from db import get_cursor
-from repositories.user import get_user
+from repositories.user import get_user_by_id
 
 
 _logger = logging.getLogger("repos.logger")
@@ -49,7 +49,7 @@ def create_cart(user_id: int) -> dict[str, Any]:
     Returns:
         dict[str, Any]: dictionary with data about the created cart.
     """
-    user = get_user(telegram_id=user_id)
+    user = get_user_by_id(id=user_id)
 
     with get_cursor() as cur:
         try:

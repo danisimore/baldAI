@@ -5,7 +5,7 @@ from agent.tools_registry import TOOLS
 from dto.agent_data import AgentResult
 from dto.tool_context import ToolContext
 from agent.tool_executor import ToolExecutor
-from repositories.user import get_user
+from repositories.user import get_user_by_telegram_id
 
 
 _logger = logging.getLogger("bot.logger")
@@ -52,7 +52,7 @@ class Agent:
                 number of tool calls.
         """
 
-        user = get_user(telegram_id=user_id)
+        user = get_user_by_telegram_id(telegram_id=user_id)
         executor = ToolExecutor(
             context=ToolContext(telegram_id=user_id, user_id=user["id"])
         )

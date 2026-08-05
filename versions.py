@@ -1,10 +1,17 @@
-VERSION = "0.1.1"
+VERSION = "0.1.2"
 """Application version."""
 
-RELEASE_DATE = "2026-08-03"
+RELEASE_DATE = "2026-08-05"
 """Release date of the version."""
 
 CHANGELOG = {
+    "0.1.2": {
+        "date": "2026-08-05",
+        "changes": [
+            "The product search tool has been modified. "
+            "Now it allows you to search through all the necessary fields.",
+        ],
+    },
     "0.1.1": {
         "date": "2026-08-03",
         "changes": [
