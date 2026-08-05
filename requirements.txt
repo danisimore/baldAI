@@ -10,3 +10,4 @@ pyngrok
 ollama
 psycopg2-binary
 openai
+faster_whisper
