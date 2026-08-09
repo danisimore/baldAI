@@ -3,11 +3,11 @@ from db import get_cursor
 from aiogram.types import User
 
 
-def get_user(telegram_id: int) -> dict[str, Any] | None:
+def get_user_by_telegram_id(telegram_id: str) -> dict[str, Any] | None:
     """Retrieves a client by Telegram ID.
 
     Args:
-        telegram_id (int): Telegram user identifier.
+        telegram_id (int): User telegram ID.
 
     Returns:
         dict[str, Any] | None: Client record if found, otherwise None.
@@ -20,6 +20,27 @@ def get_user(telegram_id: int) -> dict[str, Any] | None:
             WHERE telegram_id = %s
             """,
             (telegram_id,),
+        )
+        return cur.fetchone()
+
+
+def get_user_by_id(id: int) -> dict[str, Any] | None:
+    """Retrieves a client by ID.
+
+    Args:
+        id (int): User ID in Postgres.
+
+    Returns:
+        dict[str, Any] | None: Client record if found, otherwise None.
+    """
+    with get_cursor() as cur:
+        cur.execute(
+            """
+            SELECT *
+            FROM clients
+            WHERE id = %s
+            """,
+            (id,),
         )
         return cur.fetchone()
 
@@ -66,7 +87,7 @@ def get_or_create_user(user_data: User) -> dict[str, Any]:
     Returns:
         dict[str, Any]: Existing or newly created client record.
     """
-    user = get_user(telegram_id=user_data.id)
+    user = get_user_by_telegram_id(telegram_id=user_data.id)
     if user:
         return user
 

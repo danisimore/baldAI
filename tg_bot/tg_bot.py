@@ -1,4 +1,5 @@
 import logging
+import asyncio
 
 from aiogram import Bot, Dispatcher, Router
 from aiogram.types import Message
@@ -7,6 +8,8 @@ from config import bot_config
 from agent.agent import Agent
 from repositories.user import get_or_create_user
 from repositories.messages import get_history, save_messages
+
+from tg_bot.services import transcriber
 
 
 logging.basicConfig(
@@ -33,11 +36,35 @@ async def chat(message: Message):
     Args:
         message (Message): Incoming Telegram message.
     """
+    if message.voice:
+        try:
+            path = await transcriber.download_voice(message)
+
+            try:
+                text = await asyncio.to_thread(
+                    transcriber.transcribe,
+                    str(path),
+                )
+                _logger.info("Сообщение успешно транскрибировано:\n\n%s", text)
+            finally:
+                path.unlink(missing_ok=True)
+
+        except Exception:
+            _logger.exception("Failed to transcribe voice message.")
+
+            await message.answer(
+                "К сожалению, мне не удалось распознать ваше голосовое сообщение. "
+                "Попробуйте отправить его еще раз или напишите текстом."
+            )
+            return
+    else:
+        text = message.text
+
     user = get_or_create_user(user_data=message.from_user)
 
     history = get_history(user["id"])
     result = agent.chat(
-        history=history, user_message=message.text, user_id=message.from_user.id
+        history=history, user_message=text, user_id=message.from_user.id
     )
 
     save_messages(
