@@ -5,7 +5,7 @@ from pyngrok import ngrok
 from tg_bot.tg_bot import bot, close_bot
 from fastapi_app.server import start_api
 from config import ngrok_config, bot_config
-from utils.api_utls import wait_api_ready
+from utils.api_utils import wait_api_ready
 
 
 async def main():
