@@ -15,16 +15,16 @@ _logger = logging.getLogger("fastapi.logger")
 
 
 @router.post("/webhook")
-async def telegram_webhook(requiest: Request) -> Response:
+async def telegram_webhook(request: Request) -> Response:
     """Telegram webhook.
 
     Args:
-        requiest (Request): HTTP request from telegram with message data.
+        request (Request): HTTP request from telegram with message data.
 
     Returns:
         Response: HTTP response.
     """
-    data = await requiest.json()
+    data = await request.json()
     update = Update.model_validate(data)
 
     await dp.feed_webhook_update(bot, update)
